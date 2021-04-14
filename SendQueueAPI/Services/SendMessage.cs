@@ -22,7 +22,7 @@ namespace SendQueueAPI.Services
         {
             foreach(var apiname in _apiUrls)
             {
-                _rabbitQueue.SendMessage("queuename", body, apiname.ToString(), "url");
+                _rabbitQueue.SendMessage("queuename", body, apiname.ApiName.ToString(), "url");
             }
         }
     }

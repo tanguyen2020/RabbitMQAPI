@@ -12,7 +12,6 @@ namespace QueueRabbitMQ
         private IConnection _connectionRabbit;
         public RabbitQueue()
         {
-            CreateConnection();
         }
 
         private IConnection CreateConnection()
@@ -20,7 +19,7 @@ namespace QueueRabbitMQ
             try
             {
                 var factory = new ConnectionFactory() { HostName = "localhost" };
-                return factory.CreateConnection();
+                return _connectionRabbit = factory.CreateConnection();
             }
             catch (Exception ex)
             {
@@ -30,13 +29,13 @@ namespace QueueRabbitMQ
 
         public bool ConnectionExists()
         {
-            if (_connectionRabbit.IsOpen) return true;
+            if (_connectionRabbit != null) return true;
             CreateConnection();
             return _connectionRabbit.IsOpen;
         }
         public void SendMessage(string queuename, object body, string apiname, string url)
         {
-            if (!_connectionRabbit.IsOpen) CreateConnection();
+            if (!ConnectionExists()) CreateConnection();
             var chanel = _connectionRabbit.CreateModel();
             chanel.QueueDeclare(queue: queuename, durable: false, exclusive: false, autoDelete: false, arguments: null);
             chanel.BasicPublish(exchange: "", routingKey: queuename, basicProperties: null, body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(body)));
@@ -47,8 +46,6 @@ namespace QueueRabbitMQ
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
             httpClient.SendAsync(httpRequest);
-
-            _connectionRabbit.Close();
         }
 
         protected bool _disposed = false;
