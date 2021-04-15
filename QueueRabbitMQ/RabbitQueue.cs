@@ -36,16 +36,19 @@ namespace QueueRabbitMQ
         public void SendMessage(string queuename, object body, string apiname, string url)
         {
             if (!ConnectionExists()) CreateConnection();
-            var chanel = _connectionRabbit.CreateModel();
-            chanel.QueueDeclare(queue: queuename, durable: false, exclusive: false, autoDelete: false, arguments: null);
-            chanel.BasicPublish(exchange: "", routingKey: queuename, basicProperties: null, body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(body)));
+            using (var chanel = _connectionRabbit.CreateModel())
+            {
+                chanel.QueueDeclare(queue: queuename, durable: false, exclusive: false, autoDelete: false, arguments: null);
+                chanel.BasicPublish(exchange: "", routingKey: queuename, basicProperties: null, body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(body)));
 
-            HttpClient httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri(apiname);
-            httpClient.DefaultRequestHeaders.Clear();
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
-            httpClient.SendAsync(httpRequest);
+                HttpClient httpClient = new HttpClient();
+                httpClient.BaseAddress = new Uri(apiname);
+                httpClient.DefaultRequestHeaders.Clear();
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
+                httpRequest.Content = new StringContent(JsonConvert.SerializeObject(body, Formatting.None), Encoding.UTF8, "application/json");
+                httpClient.SendAsync(httpRequest);
+            }
         }
 
         protected bool _disposed = false;
