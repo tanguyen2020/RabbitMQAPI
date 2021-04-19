@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using QueueRabbitMQ;
+using QueueRabbitMQ.Model;
 using SendQueueAPI.Settings;
 
 namespace SendQueueAPI.Services
@@ -18,11 +19,21 @@ namespace SendQueueAPI.Services
             _apiUrls = apiUrls.Value;
         }
 
-        public void SendMessageQueue(object body)
+        public async Task CreatePatientAsync(PatientInfo patient)
         {
-            foreach(var apiname in _apiUrls)
+            var apiUrls = _apiUrls.FindAll(x => x.ApiName != patient.ApiName);
+            foreach (var apiname in _apiUrls)
             {
-                _rabbitQueue.SendMessage("queuename", body, apiname.ApiName.ToString(), "api/data/testform");
+                await _rabbitQueue.SendMessageAsync("queuename", patient, apiname.ApiName.ToString(), Constant.CreatePatient);
+            }
+        }
+
+        public async Task UpdatePatientAsync(PatientInfo patient)
+        {
+            var apiUrls = _apiUrls.FindAll(x => x.ApiName != patient.ApiName);
+            foreach (var apiname in _apiUrls)
+            {
+               await _rabbitQueue.SendMessageAsync("queuename", patient, apiname.ApiName.ToString(), Constant.UpdatePatient);
             }
         }
     }

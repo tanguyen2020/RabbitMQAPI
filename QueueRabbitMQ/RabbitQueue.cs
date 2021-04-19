@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
 namespace QueueRabbitMQ
 {
@@ -33,7 +34,13 @@ namespace QueueRabbitMQ
             CreateConnection();
             return _connectionRabbit.IsOpen;
         }
+
         public void SendMessage(string queuename, object body, string apiname, string url)
+        {
+            SendMessageAsync(queuename, body, apiname, url).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public async Task SendMessageAsync(string queuename, object body, string apiname, string url)
         {
             if (!ConnectionExists()) CreateConnection();
             using (var chanel = _connectionRabbit.CreateModel())
@@ -47,7 +54,7 @@ namespace QueueRabbitMQ
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
                 httpRequest.Content = new StringContent(JsonConvert.SerializeObject(body, Formatting.None), Encoding.UTF8, "application/json");
-                httpClient.SendAsync(httpRequest);
+                await httpClient.SendAsync(httpRequest);
             }
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using QueueRabbitMQ.Model;
 using SendQueueAPI.Services;
 
 namespace SendQueueAPI.Controllers
@@ -16,11 +17,20 @@ namespace SendQueueAPI.Controllers
         {
             _serviceSend = serviceSend;
         }
-        [Route("sendmessage")]
+
+        [Route("createpatient")]
         [HttpPost]
-        public IActionResult SendMessage([FromBody] object body)
+        public async Task<IActionResult> CreatePatient([FromBody] PatientInfo patient)
         {
-            _serviceSend.SendMessageQueue(body);
+            await _serviceSend.CreatePatientAsync(patient);
+            return Ok();
+        }
+
+        [Route("updatepatient")]
+        [HttpPost]
+        public async Task<IActionResult> UpdatePatient([FromBody] PatientInfo patient)
+        {
+            await _serviceSend.UpdatePatientAsync(patient);
             return Ok();
         }
     }
