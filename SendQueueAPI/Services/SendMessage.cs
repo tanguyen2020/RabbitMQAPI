@@ -21,7 +21,7 @@ namespace SendQueueAPI.Services
 
         public async Task CreatePatientAsync(PatientInfo patient)
         {
-            var apiUrls = _queues.FindAll(x => x.QueueName != patient.QueueName);
+            var queues = _queues.FindAll(x => x.QueueName != patient.QueueName);
             foreach (var queueName in _queues)
             {
                 await _rabbitQueue.SendMessageAsync(queueName.ToString(), patient, Constant.CreatePatient);
@@ -30,7 +30,7 @@ namespace SendQueueAPI.Services
 
         public async Task UpdatePatientAsync(PatientInfo patient)
         {
-            var apiUrls = _queues.FindAll(x => x.QueueName != patient.QueueName);
+            var queues = _queues.FindAll(x => x.QueueName != patient.QueueName);
             foreach (var queueName in _queues)
             {
                await _rabbitQueue.SendMessageAsync(queueName.ToString(), patient, Constant.UpdatePatient);
