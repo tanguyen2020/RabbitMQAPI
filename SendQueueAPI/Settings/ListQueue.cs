@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace SendQueueAPI.Settings
 {
-    public class ApiUrl
+    public class ListQueue
     {
-        public string ApiName { get; set; }
+        public string QueueName { get; set; }
     }
 }

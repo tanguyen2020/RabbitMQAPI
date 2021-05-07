@@ -33,7 +33,7 @@ namespace SendQueueAPI
         {
             services.AddSingleton<ISendMessage, SendMessage>();
             services.AddSingleton<IRabbitQueue, RabbitQueue>();
-            services.Configure<List<ApiUrl>>(Configuration.GetSection("ApiUrl"));
+            services.Configure<List<ListQueue>>(Configuration.GetSection("ApiUrl"));
             services.AddControllers();
         }
 

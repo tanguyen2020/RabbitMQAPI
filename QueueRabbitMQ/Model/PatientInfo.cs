@@ -61,6 +61,6 @@ namespace QueueRabbitMQ.Model
         public bool ACTIVE { get; set; }
         public string PID { get; set; }
         public int? TRINHDOVANHOA_ID { get; set; }
-        public string ApiName { get; set; }
+        public string QueueName { get; set; }
     }
 }

@@ -5,7 +5,7 @@ namespace QueueRabbitMQ
 {
     public interface IRabbitQueue: IDisposable
     {
-        void SendMessage(string queuename, object body, string apiname, string url);
-        Task SendMessageAsync(string queuename, object body, string apiname, string url);
+        void SendMessage(string queuename, object body, string url);
+        Task SendMessageAsync(string queuename, object body, string url);
     }
 }

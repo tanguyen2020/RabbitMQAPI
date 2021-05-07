@@ -35,26 +35,18 @@ namespace QueueRabbitMQ
             return _connectionRabbit.IsOpen;
         }
 
-        public void SendMessage(string queuename, object body, string apiname, string url)
+        public void SendMessage(string queuename, object body, string url)
         {
-            SendMessageAsync(queuename, body, apiname, url).ConfigureAwait(false).GetAwaiter().GetResult();
+            SendMessageAsync(queuename, body, url).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public async Task SendMessageAsync(string queuename, object body, string apiname, string url)
+        public async Task SendMessageAsync(string queuename, object body, string url)
         {
             if (!ConnectionExists()) CreateConnection();
             using (var chanel = _connectionRabbit.CreateModel())
             {
                 chanel.QueueDeclare(queue: queuename, durable: false, exclusive: false, autoDelete: false, arguments: null);
-                chanel.BasicPublish(exchange: "", routingKey: queuename, basicProperties: null, body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(body)));
-
-                HttpClient httpClient = new HttpClient();
-                httpClient.BaseAddress = new Uri(apiname);
-                httpClient.DefaultRequestHeaders.Clear();
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                HttpRequestMessage httpRequest = new HttpRequestMessage(HttpMethod.Post, url);
-                httpRequest.Content = new StringContent(JsonConvert.SerializeObject(body, Formatting.None), Encoding.UTF8, "application/json");
-                await httpClient.SendAsync(httpRequest);
+                chanel.BasicPublish(string.Empty, queuename, null, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(body)));
             }
         }
 

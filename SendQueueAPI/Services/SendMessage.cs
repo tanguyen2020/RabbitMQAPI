@@ -12,28 +12,28 @@ namespace SendQueueAPI.Services
     public class SendMessage: ISendMessage
     {
         private readonly IRabbitQueue _rabbitQueue;
-        private readonly List<ApiUrl> _apiUrls;
-        public SendMessage(IRabbitQueue rabbitQueue, IOptions<List<ApiUrl>> apiUrls)
+        private readonly List<ListQueue> _queues;
+        public SendMessage(IRabbitQueue rabbitQueue, IOptions<List<ListQueue>> queues)
         {
             _rabbitQueue = rabbitQueue;
-            _apiUrls = apiUrls.Value;
+            _queues = queues.Value;
         }
 
         public async Task CreatePatientAsync(PatientInfo patient)
         {
-            var apiUrls = _apiUrls.FindAll(x => x.ApiName != patient.ApiName);
-            foreach (var apiname in _apiUrls)
+            var apiUrls = _queues.FindAll(x => x.QueueName != patient.QueueName);
+            foreach (var queueName in _queues)
             {
-                await _rabbitQueue.SendMessageAsync("queuename", patient, apiname.ApiName.ToString(), Constant.CreatePatient);
+                await _rabbitQueue.SendMessageAsync(queueName.ToString(), patient, Constant.CreatePatient);
             }
         }
 
         public async Task UpdatePatientAsync(PatientInfo patient)
         {
-            var apiUrls = _apiUrls.FindAll(x => x.ApiName != patient.ApiName);
-            foreach (var apiname in _apiUrls)
+            var apiUrls = _queues.FindAll(x => x.QueueName != patient.QueueName);
+            foreach (var queueName in _queues)
             {
-               await _rabbitQueue.SendMessageAsync("queuename", patient, apiname.ApiName.ToString(), Constant.UpdatePatient);
+               await _rabbitQueue.SendMessageAsync(queueName.ToString(), patient, Constant.UpdatePatient);
             }
         }
     }
